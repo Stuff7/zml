@@ -1,0 +1,12 @@
+.{
+    .name = "zml",
+    .version = "0.1.0",
+    .paths = .{ "build.zig", "build.zig.zon", "src" },
+
+    .dependencies = .{
+        .zut = .{
+            .url = "git+https://github.com/Stuff7/zut#a4a5e94e2aa76b8847a99cbbe4cefd4cb519b52b",
+            .hash = "1220f72d33c7f9be131e7f8123f432a152ffd640fa797237df14e714c75e3e6940c5",
+        },
+    },
+}
