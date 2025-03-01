@@ -56,9 +56,7 @@ pub const Camera = struct {
         const scaledRight = gm.vec3.scale(self.right, delta[0] * speed);
         const scaledUp = gm.vec3.scale(self.up, delta[1] * speed);
 
-        self.pos = self.pos + scaledForward;
-        self.pos = self.pos + scaledRight;
-        self.pos = self.pos + scaledUp;
+        self.pos = self.pos + scaledForward + scaledRight + scaledUp;
         self.target = self.pos + forward;
     }
 

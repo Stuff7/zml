@@ -59,7 +59,7 @@ pub const mat4 = struct {
         const f_n = 1 / (near_z - far_z);
 
         dest[0][0] = f / aspect;
-        dest[1][1] = f;
+        dest[1][1] = -f;
         dest[2][2] = (near_z + far_z) * f_n;
         dest[2][3] = -1;
         dest[3][2] = 2 * near_z * far_z * f_n;
