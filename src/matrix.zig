@@ -1,38 +1,38 @@
 const m = @import("std").math;
-const gm = @import("zml.zig");
+const zml = @import("zml.zig");
 
-pub const Mat4 = [4]gm.Vec4;
+pub const Mat4 = [4]zml.Vec4;
 pub const mat4 = struct {
     pub fn identity() Mat4 {
         return Mat4{
-            gm.Vec4{ 1, 0, 0, 0 },
-            gm.Vec4{ 0, 1, 0, 0 },
-            gm.Vec4{ 0, 0, 1, 0 },
-            gm.Vec4{ 0, 0, 0, 1 },
+            zml.Vec4{ 1, 0, 0, 0 },
+            zml.Vec4{ 0, 1, 0, 0 },
+            zml.Vec4{ 0, 0, 1, 0 },
+            zml.Vec4{ 0, 0, 0, 1 },
         };
     }
 
     pub fn fill(s: f32) Mat4 {
-        return Mat4{ gm.vec4.fill(s), gm.vec4.fill(s), gm.vec4.fill(s), gm.vec4.fill(s) };
+        return Mat4{ zml.vec4.fill(s), zml.vec4.fill(s), zml.vec4.fill(s), zml.vec4.fill(s) };
     }
 
-    pub fn approxEq(a: gm.Mat4, b: gm.Mat4, tol: f32) bool {
+    pub fn approxEq(a: zml.Mat4, b: zml.Mat4, tol: f32) bool {
         for (a, 0..) |row, i| {
-            if (!gm.vec4.approxEq(row, b[i], tol))
+            if (!zml.vec4.approxEq(row, b[i], tol))
                 return false;
         }
         return true;
     }
 
-    pub fn isDegenerate(matrix: gm.Mat4) bool {
-        const det = gm.vec4.dot(matrix[0], gm.vec4.cross(matrix[1], matrix[2]));
+    pub fn isDegenerate(matrix: zml.Mat4) bool {
+        const det = zml.vec4.dot(matrix[0], zml.vec4.cross(matrix[1], matrix[2]));
         return det == 0.0;
     }
 
-    pub fn lookat(eye: gm.Vec3, center: gm.Vec3, up: gm.Vec3, dest: *Mat4) void {
-        const f = gm.vec3.normalize(center - eye);
-        const s = gm.vec3.normalize(gm.vec3.cross(f, up));
-        const u = gm.vec3.cross(s, f);
+    pub fn lookat(eye: zml.Vec3, center: zml.Vec3, up: zml.Vec3, dest: *Mat4) void {
+        const f = zml.vec3.normalize(center - eye);
+        const s = zml.vec3.normalize(zml.vec3.cross(f, up));
+        const u = zml.vec3.cross(s, f);
 
         dest[0][0] = s[0];
         dest[0][1] = u[0];
@@ -43,9 +43,9 @@ pub const mat4 = struct {
         dest[2][0] = s[2];
         dest[2][1] = u[2];
         dest[2][2] = -f[2];
-        dest[3][0] = -gm.vec3.dot(s, eye);
-        dest[3][1] = -gm.vec3.dot(u, eye);
-        dest[3][2] = gm.vec3.dot(f, eye);
+        dest[3][0] = -zml.vec3.dot(s, eye);
+        dest[3][1] = -zml.vec3.dot(u, eye);
+        dest[3][2] = zml.vec3.dot(f, eye);
         dest[0][3] = 0;
         dest[1][3] = 0;
         dest[2][3] = 0;
@@ -53,7 +53,7 @@ pub const mat4 = struct {
     }
 
     pub fn perspective(fovy: f32, aspect: f32, near_z: f32, far_z: f32, dest: *Mat4) void {
-        @memset(dest, gm.Vec4{ 0, 0, 0, 0 });
+        @memset(dest, zml.Vec4{ 0, 0, 0, 0 });
 
         const f = 1 / m.tan(fovy * 0.5);
         const f_n = 1 / (near_z - far_z);
@@ -66,7 +66,7 @@ pub const mat4 = struct {
     }
 
     pub fn ortho(left: f32, right: f32, bottom: f32, top: f32, nearZ: f32, farZ: f32, dest: *Mat4) void {
-        @memset(dest, gm.Vec4{ 0, 0, 0, 0 });
+        @memset(dest, zml.Vec4{ 0, 0, 0, 0 });
 
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
@@ -81,7 +81,7 @@ pub const mat4 = struct {
         dest[3][3] = 1;
     }
 
-    pub fn scale(self: *Mat4, v: gm.Vec3) void {
+    pub fn scale(self: *Mat4, v: zml.Vec3) void {
         self.* = identity();
         self[0][0] = v[0];
         self[1][1] = v[1];
@@ -140,27 +140,33 @@ pub const mat4 = struct {
         dest[3][3] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
     }
 
-    pub fn mulAdds(a: gm.Vec4, s: f32, dest: *gm.Vec4) void {
+    pub fn mulAdds(a: zml.Vec4, s: f32, dest: *zml.Vec4) void {
         dest[0] += a[0] * s;
         dest[1] += a[1] * s;
         dest[2] += a[2] * s;
         dest[3] += a[3] * s;
     }
 
-    pub fn translate(mat: *Mat4, v: gm.Vec3) void {
+    pub fn translate(mat: *Mat4, v: zml.Vec3) void {
         mulAdds(mat[0], v[0], &mat[3]);
         mulAdds(mat[1], v[1], &mat[3]);
         mulAdds(mat[2], v[2], &mat[3]);
     }
 
-    pub fn quatRotate(mat: Mat4, q: gm.Vec4, dest: *Mat4) void {
+    fn translateTo(mat: *Mat4, position: zml.Vec3) void {
+        mat[3][0] = position[0];
+        mat[3][1] = position[1];
+        mat[3][2] = position[2];
+    }
+
+    pub fn quatRotate(mat: Mat4, q: zml.Vec4, dest: *Mat4) void {
         var rot: Mat4 = undefined;
         quat(q, &rot);
         mulRot(mat, rot, dest);
     }
 
-    pub fn quat(q: gm.Vec4, dest: *Mat4) void {
-        const norm = gm.vec4.norm(q);
+    pub fn quat(q: zml.Vec4, dest: *Mat4) void {
+        const norm = zml.vec4.norm(q);
         const s: f32 = if (norm > 0.0) 2 / norm else 0;
 
         const x = q[0];
