@@ -153,7 +153,7 @@ pub const mat4 = struct {
         mulAdds(mat[2], v[2], &mat[3]);
     }
 
-    fn translateTo(mat: *Mat4, position: zml.Vec3) void {
+    pub fn translateTo(mat: *Mat4, position: zml.Vec3) void {
         mat[3][0] = position[0];
         mat[3][1] = position[1];
         mat[3][2] = position[2];
